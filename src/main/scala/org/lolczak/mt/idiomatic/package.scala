@@ -5,7 +5,7 @@ import org.lolczak.lambda._
 import scalaz._
 import scalaz.effect.IO
 import Scalaz._
-import IO.ioMonad
+import IO._
 
 package object idiomatic {
 
@@ -19,12 +19,12 @@ package object idiomatic {
   }
 
   def eval(exp: Exp): Eval[LambdaValue] = {
-    implicit val M0 = implicitly[MonadTrans[λ[(α[_], β) => ReaderWriterStateT[α, Env, Logs, StateType, β]]]]
+    implicit val M0 = implicitly[MonadTrans[λ[(α[_], β) => RWST[α, Env, Logs, StateType, β]]]]
     exp match {
       case Lit(i) =>
         for {
           _ <- tick[Eval]
-          _ <-  M0.liftM(IO.putStrLn(s"Lit $i"))
+          _ <-  M0.liftM(putStrLn(s"Lit $i"))
         } yield IntVal(i).asInstanceOf[LambdaValue]
     }
   }
