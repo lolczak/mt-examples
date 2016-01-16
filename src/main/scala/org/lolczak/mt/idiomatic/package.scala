@@ -20,11 +20,12 @@ package object idiomatic {
 
   def eval(exp: Exp): Eval[LambdaValue] = {
     implicit val M0 = implicitly[MonadTrans[λ[(α[_], β) => RWST[α, Env, Logs, StateType, β]]]]
+    import M0._
     exp match {
       case Lit(i) =>
         for {
           _ <- tick[Eval]
-          _ <-  M0.liftM(putStrLn(s"Lit $i"))
+          _ <- liftM(putStrLn(s"Lit $i"))
         } yield IntVal(i).asInstanceOf[LambdaValue]
     }
   }
