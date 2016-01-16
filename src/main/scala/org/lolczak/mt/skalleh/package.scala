@@ -1,22 +1,25 @@
 package org.lolczak.mt
 
+import org.lolczak.lambda.Env
+
 import scalaz._
 import scalaz.concurrent.Task
 
 package object skalleh {
-  type Env = String
 
-  type Queue = List[Int]
+  type StateType = Int
 
   type Logs = List[String]
-  type ServiceOp[A] = ReaderT[EitherT[WriterT[StateT[Task, Queue, ?], Logs, ?], ?, Failure], Env, A]
+  type Eval[A] = ReaderT[EitherT[WriterT[StateT[Task, StateType, ?], Logs, ?], ?, Failure], Env, A]
 
-  def runService[A](env: Env, state: Queue, op: ServiceOp[A]): Task[(Queue, (Logs, A \/ Failure))] = {
-    val either: EitherT[WriterT[StateT[Task, Queue, ?], Logs, ?], A, Failure] = op.run("config")
-    val writer: WriterT[StateT[Task, Queue, ?], Logs, A \/ Failure]           = either.run
-    val state:  StateT[Task, Queue, (Logs, A \/ Failure)]                     = writer.run
-    val task:   Task[(Queue, (Logs, A \/ Failure))]                           = state.run(List.empty[Int])
+  def runEval[A](env: Env, st: StateType, op: Eval[A]): Task[(StateType, (Logs, A \/ Failure))] = {
+    val either: EitherT[WriterT[StateT[Task, StateType, ?], Logs, ?], A, Failure] = op.run(env)
+    val writer: WriterT[StateT[Task, StateType, ?], Logs, A \/ Failure]           = either.run
+    val state:  StateT[Task, StateType, (Logs, A \/ Failure)]                     = writer.run
+    val task:   Task[(StateType, (Logs, A \/ Failure))]                           = state.run(st)
     task
   }
+
   case class Failure(msg: String)
+
 }
