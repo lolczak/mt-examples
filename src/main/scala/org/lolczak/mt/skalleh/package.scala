@@ -49,7 +49,7 @@ package object skalleh {
 }
 
 
-trait MonadStateInstances {
+//trait MonadStateInstances {
 
 //  implicit def stateTMonadState[S, F[_]](implicit F0: Monad[F]): MonadState[StateT[F, S, ?], S] =
 //    new StateTMonadState[S, F] {
@@ -140,6 +140,6 @@ instance (Monoid w, MonadState s m) => MonadState s (Strict.WriterT w m) where
     get = lift get
     put = lift . put
     state = lift . state
-   */
 
-}
+
+} */
