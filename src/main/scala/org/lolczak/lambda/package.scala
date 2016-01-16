@@ -11,10 +11,10 @@ package object lambda {
   case class Abs(name: Name, body: Exp) extends Exp
   case class App(left: Exp, right: Exp) extends Exp
 
-  sealed trait Value
-  case class IntVal(value: Int)                      extends Value
-  case class FunVal(env: Env, name: Name, body: Exp) extends Value
+  sealed trait LambdaValue
+  case class IntVal(value: Int)                      extends LambdaValue
+  case class FunVal(env: Env, name: Name, body: Exp) extends LambdaValue
 
-  type Env = Map[Name, Value]
+  type Env = Map[Name, LambdaValue]
 
 }
