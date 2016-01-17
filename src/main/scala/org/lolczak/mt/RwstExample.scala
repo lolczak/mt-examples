@@ -2,13 +2,14 @@ package org.lolczak.mt
 
 import org.lolczak.lambda._
 
-import scalaz.Scalaz._
+import scala.App
 import scalaz._
 import scalaz.effect.IO
 import scalaz.effect.IO._
+import org.lolczak.lambda.{App => Apply,_}
+import scalaz.Scalaz._
 
-package object idiomatic {
-
+object RwstExample extends App {
   type StateType = Int
 
   type Logs = List[String]
@@ -71,5 +72,12 @@ package object idiomatic {
 
 
   case class Failure(msg: String)
+
+
+  val exp = Add(Lit(12), Apply(Abs("x", Var("x")), Add(Lit(4), Lit(2))))
+
+  val result = runEval(Map.empty, 0, eval(exp))
+
+  println(result.unsafePerformIO())
 
 }
