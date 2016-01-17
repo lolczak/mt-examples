@@ -9,29 +9,35 @@ import scalaz.effect.IO._
 import org.lolczak.lambda.{App => Apply,_}
 import scalaz.Scalaz._
 
+
 object EitherRwstExample extends App {
 
   type StateType = Int
 
   type Logs = List[String]
-  type Eval[A] = RWST[IO, Env, Logs, StateType, A]
+  type Eval[A] = EitherT[RWST[IO, Env, Logs, StateType, ?], Failure, A]
 
-  def runEval[A](env: Env, st: StateType, op: Eval[A]): IO[(Logs, A, StateType)] = {
-    op.run(env, st)
+  def runEval[A](env: Env, st: StateType, op: Eval[A]): IO[(Logs, Failure \/ A, StateType)] = {
+    op.run.run(env, st)
   }
 
   def eval(exp: Exp): Eval[LambdaValue] = {
-    implicit val E0 = implicitly[MonadTrans[λ[(α[_], β) => RWST[α, Env, Logs, StateType, β]]]]
+    import MtInstances._
+    import EitherT._
+    import RWST._
+    implicit val E0 = implicitly[MonadTrans[λ[(α[_], β) => EitherT[α, Failure, β]]]]
     import E0._
-    implicit val E1 = implicitly[MonadReader[Eval, Env]]
-    implicit val E2 = implicitly[MonadListen[Eval, Logs]]
+    implicit val E1 = MtInstances.eitherTMonadReader[RWST[IO, Env, Logs, StateType, ?], Env, Failure] //implicitly[MonadReader[Eval, Env]]
     import E1._
+    implicit val E2 = EitherT.monadListen[RWST[IO, Env, Logs, StateType, ?], Logs, Failure] //implicitly[MonadListen[Eval, Logs]]
     import E2._
+    implicit val E3 = implicitly[MonadError[Eval, Failure]]
+//    import E3._
     exp match {
       case Lit(i) =>
         for {
-          _ <- tick[Eval]
-          _ <- liftM(putStrLn(s"Lit $i"))
+          _ <- tick[EitherT[RWST[IO, Env, Logs, StateType, ?], Failure, ?]]
+          _ <- E0.liftM(putStrLn(s"Lit $i"))
         } yield IntVal(i).asInstanceOf[LambdaValue]
       case Var(name) =>
         for {
@@ -81,5 +87,31 @@ object EitherRwstExample extends App {
 
   println(result.unsafePerformIO())
 
+}
+
+object MtInstances {
+
+  implicit def eitherTMonadReader[F[_], En, Er](implicit MR0: MonadReader[F, Env]) = new MonadReader[EitherT[F, Er, ?], En] {
+
+    override def ask: EitherT[F, Er, En] = ???
+
+    override def local[A](f: (En) => En)(fa: EitherT[F, Er, A]): EitherT[F, Er, A] = ???
+
+    override def bind[A, B](fa: EitherT[F, Er, A])(f: (A) => EitherT[F, Er, B]): EitherT[F, Er, B] = ???
+
+    override def point[A](a: => A): EitherT[F, Er, A] = ???
+  }
+
+  implicit def eitherTMonadState[F[_], S, Er](implicit MS0: MonadState[F, S]): MonadState[EitherT[F, Er, ?], S] = new MonadState[EitherT[F, Er, ?], S] {
+    override def init: EitherT[F, Er, S] = ???
+
+    override def get: EitherT[F, Er, S] = ???
+
+    override def put(s: S): EitherT[F, Er, Unit] = ???
+
+    override def bind[A, B](fa: EitherT[F, Er, A])(f: (A) => EitherT[F, Er, B]): EitherT[F, Er, B] = ???
+
+    override def point[A](a: => A): EitherT[F, Er, A] = ???
+  }
 
 }
