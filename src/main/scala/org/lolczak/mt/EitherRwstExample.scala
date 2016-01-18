@@ -31,7 +31,7 @@ object EitherRwstExample extends App {
     import E2._
     implicit val E3 = EitherT.eitherTMonadError[RWST[IO, Env, Logs, StateType, ?], Failure]//implicitly[MonadError[Eval, Failure]]
     implicit val MS = eitherTMonadState[RWST[IO, Env, Logs, StateType, ?], StateType, Failure]
-//    import E3._
+    import E3._
     implicit val E5 = EitherT.eitherTMonad[RWST[IO, Env, Logs, StateType, ?], Failure]//implicitly[Monad[Eval]]
 
     exp match {
@@ -53,7 +53,7 @@ object EitherRwstExample extends App {
           val2 <- eval(e2)
           result <- (val1, val2) match {
             case (IntVal(v1), IntVal(v2)) => E5.point(IntVal(v1 + v2).asInstanceOf[LambdaValue])
-            case _                        => E3.raiseError(Failure("Type error in addition"))
+            case _                        => raiseError(Failure("Type error in addition"))
           }
         } yield result
       case Abs(name, body) =>
@@ -68,7 +68,7 @@ object EitherRwstExample extends App {
           val2 <- eval(e2)
           result <- val1 match {
             case FunVal(env2, name, body) => local(_ => env2 + (name -> val2))(eval(body))
-            case _                        => E3.raiseError(Failure("Type error in application"))
+            case _                        => raiseError(Failure("Type error in application"))
           }
         } yield result
     }
