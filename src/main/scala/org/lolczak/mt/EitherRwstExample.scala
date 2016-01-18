@@ -29,7 +29,7 @@ object EitherRwstExample extends App {
     import E1._
     implicit val E2 = EitherT.monadListen[RWST[IO, Env, Logs, StateType, ?], Logs, Failure] //implicitly[MonadListen[Eval, Logs]]
     import E2._
-//    implicit val E3 = implicitly[MonadError[Eval, Failure]]
+    implicit val E3 = EitherT.eitherTMonadError[RWST[IO, Env, Logs, StateType, ?], Failure]//implicitly[MonadError[Eval, Failure]]
     implicit val MS = eitherTMonadState[RWST[IO, Env, Logs, StateType, ?], StateType, Failure]
 //    import E3._
     exp match {
