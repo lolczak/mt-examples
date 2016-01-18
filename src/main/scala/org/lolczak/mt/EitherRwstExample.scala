@@ -49,7 +49,7 @@ object EitherRwstExample extends App {
       case Add(e1, e2) =>
         for {
           _ <- tick[Eval]
-          val1 <- eval(e1) //todo handle error
+          val1 <- eval(e1)
           val2 <- eval(e2)
           result <- (val1, val2) match {
             case (IntVal(v1), IntVal(v2)) => E5.point(IntVal(v1 + v2).asInstanceOf[LambdaValue])
