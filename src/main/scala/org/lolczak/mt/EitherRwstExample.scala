@@ -9,7 +9,6 @@ import scalaz.effect.IO._
 import org.lolczak.lambda.{App => Apply,_}
 import scalaz.Scalaz._
 
-
 object EitherRwstExample extends App {
 
   type StateType = Int
@@ -23,21 +22,21 @@ object EitherRwstExample extends App {
 
   def eval(exp: Exp): Eval[LambdaValue] = {
     import MtInstances._
-    import EitherT._
-    import RWST._
+    implicit val E4 = implicitly[MonadTrans[λ[(α[_], β) => RWST[α, Env, Logs, StateType, β]]]]
     implicit val E0 = implicitly[MonadTrans[λ[(α[_], β) => EitherT[α, Failure, β]]]]
     import E0._
     implicit val E1 = MtInstances.eitherTMonadReader[RWST[IO, Env, Logs, StateType, ?], Env, Failure] //implicitly[MonadReader[Eval, Env]]
     import E1._
     implicit val E2 = EitherT.monadListen[RWST[IO, Env, Logs, StateType, ?], Logs, Failure] //implicitly[MonadListen[Eval, Logs]]
     import E2._
-    implicit val E3 = implicitly[MonadError[Eval, Failure]]
+//    implicit val E3 = implicitly[MonadError[Eval, Failure]]
+    implicit val MS = eitherTMonadState[RWST[IO, Env, Logs, StateType, ?], StateType, Failure]
 //    import E3._
     exp match {
       case Lit(i) =>
         for {
           _ <- tick[EitherT[RWST[IO, Env, Logs, StateType, ?], Failure, ?]]
-          _ <- E0.liftM(putStrLn(s"Lit $i"))
+          _ <- E0.liftMU(E4.liftM(putStrLn(s"Lit $i")))
         } yield IntVal(i).asInstanceOf[LambdaValue]
       case Var(name) =>
         for {
