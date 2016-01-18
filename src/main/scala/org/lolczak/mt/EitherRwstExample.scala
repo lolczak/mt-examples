@@ -53,6 +53,7 @@ object EitherRwstExample extends App {
           val2 <- eval(e2)
           result <- (val1, val2) match {
             case (IntVal(v1), IntVal(v2)) => E5.point(IntVal(v1 + v2).asInstanceOf[LambdaValue])
+            case _                        => E3.raiseError(Failure("Type error in addition"))
           }
         } yield result
       case Abs(name, body) =>
@@ -67,6 +68,7 @@ object EitherRwstExample extends App {
           val2 <- eval(e2)
           result <- val1 match {
             case FunVal(env2, name, body) => local(_ => env2 + (name -> val2))(eval(body))
+            case _                        => E3.raiseError(Failure("Type error in application"))
           }
         } yield result
     }
