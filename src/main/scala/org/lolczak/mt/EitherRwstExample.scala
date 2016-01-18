@@ -35,7 +35,7 @@ object EitherRwstExample extends App {
     exp match {
       case Lit(i) =>
         for {
-          _ <- tick[EitherT[RWST[IO, Env, Logs, StateType, ?], Failure, ?]]
+          _ <- tick[Eval]
           _ <- E0.liftMU(E4.liftM(putStrLn(s"Lit $i")))
         } yield IntVal(i).asInstanceOf[LambdaValue]
       case Var(name) =>
