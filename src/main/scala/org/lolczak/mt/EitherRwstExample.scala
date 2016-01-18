@@ -32,6 +32,8 @@ object EitherRwstExample extends App {
     implicit val E3 = EitherT.eitherTMonadError[RWST[IO, Env, Logs, StateType, ?], Failure]//implicitly[MonadError[Eval, Failure]]
     implicit val MS = eitherTMonadState[RWST[IO, Env, Logs, StateType, ?], StateType, Failure]
 //    import E3._
+    implicit val E5 = EitherT.eitherTMonad[RWST[IO, Env, Logs, StateType, ?], Failure]//implicitly[Monad[Eval]]
+
     exp match {
       case Lit(i) =>
         for {
@@ -49,8 +51,8 @@ object EitherRwstExample extends App {
           _ <- tick[Eval]
           val1 <- eval(e1) //todo handle error
           val2 <- eval(e2)
-          result = (val1, val2) match {
-            case (IntVal(v1), IntVal(v2)) => IntVal(v1 + v2).asInstanceOf[LambdaValue]
+          result <- (val1, val2) match {
+            case (IntVal(v1), IntVal(v2)) => E5.point(IntVal(v1 + v2).asInstanceOf[LambdaValue])
           }
         } yield result
       case Abs(name, body) =>
