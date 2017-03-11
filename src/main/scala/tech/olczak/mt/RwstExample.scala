@@ -1,12 +1,10 @@
-package org.lolczak.mt
-
-import org.lolczak.lambda._
+package tech.olczak.mt
 
 import scala.App
 import scalaz._
 import scalaz.effect.IO
 import scalaz.effect.IO._
-import org.lolczak.lambda.{App => Apply,_}
+import tech.olczak.lambda.{App => Apply,_}
 import scalaz.Scalaz._
 
 object RwstExample extends App {
@@ -52,7 +50,7 @@ object RwstExample extends App {
           _ <- tick[Eval]
           env <- ask
         } yield FunVal(env, name, body).asInstanceOf[LambdaValue]
-      case App(e1, e2) =>
+      case Apply(e1, e2) =>
         for {
           _ <- tick[Eval]
           val1 <- eval(e1)

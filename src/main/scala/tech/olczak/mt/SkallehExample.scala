@@ -1,6 +1,6 @@
-package org.lolczak.mt
+package tech.olczak.mt
 
-import org.lolczak.lambda._
+import tech.olczak.lambda._
 
 import scalaz._
 import scalaz.effect.IO

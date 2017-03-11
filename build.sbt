@@ -1,6 +1,6 @@
 name := "mt-examples"
 
-organization := "org.lolczak"
+organization := "tech.olczak"
 
 version := "0.1-SNAPSHOT"
 
